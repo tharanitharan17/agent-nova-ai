@@ -1,0 +1,6 @@
+{
+  "name": "Nova",
+  "description": "An autonomous digital employee and goal coach that plans, reasons, and adapts roadmaps to help you achieve your goals.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

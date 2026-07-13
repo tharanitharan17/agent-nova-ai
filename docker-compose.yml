@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  goalpilot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: goalpilot-ai
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - LLM_PROVIDER=${LLM_PROVIDER:-ollama}
+      - LLM_MODEL=${LLM_MODEL:-deepseek-r1:8b}
+      - OLLAMA_ENDPOINT=${OLLAMA_ENDPOINT:-http://ollama:11434}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-3.1-flash-lite}
+      - APP_URL=${APP_URL:-http://localhost:3000}
+      - JWT_SECRET=${JWT_SECRET}
+    volumes:
+      - ./db.json:/app/db.json
+    depends_on:
+      - ollama
+    restart: unless-stopped
+    networks:
+      - goalpilot-network
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    restart: unless-stopped
+    networks:
+      - goalpilot-network
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+volumes:
+  ollama-data:
+    driver: local
+
+networks:
+  goalpilot-network:
+    driver: bridge
