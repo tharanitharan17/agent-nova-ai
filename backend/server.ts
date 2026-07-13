@@ -42,6 +42,9 @@ export function createApp() {
   const allowedOrigins = process.env.NODE_ENV === 'production'
     ? configuredOrigins
     : Array.from(new Set([...configuredOrigins, 'http://localhost:5173', 'http://127.0.0.1:5173']));
+    console.log("NODE_ENV =", process.env.NODE_ENV);
+    console.log("FRONTEND_URL =", process.env.FRONTEND_URL);
+    console.log("allowedOrigins =", allowedOrigins);
   if (process.env.NODE_ENV === 'production' && allowedOrigins.length === 0) {
     console.warn('[CORS] FRONTEND_URL is not configured; browser cross-origin requests will be rejected.');
   }
