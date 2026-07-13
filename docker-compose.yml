@@ -4,7 +4,7 @@ services:
   goalpilot:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: backend/Dockerfile
     container_name: goalpilot-ai
     ports:
       - "3000:3000"

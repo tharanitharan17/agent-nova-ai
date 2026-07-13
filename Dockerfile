@@ -1,30 +1,20 @@
-FROM node:20-alpine
+FROM node:20-alpine AS build
 
 WORKDIR /app
-
-# Install dependencies for native modules
-RUN apk add --no-cache python3 make g++
-
-# Copy package files
-COPY package*.json ./
+COPY package.json package-lock.json ./
 COPY frontend/package.json ./frontend/package.json
 COPY backend/package.json ./backend/package.json
-
-# Install dependencies
 RUN npm ci
+COPY frontend ./frontend
+ARG VITE_API_URL
+ARG VITE_REQUEST_TIMEOUT_MS
+ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_REQUEST_TIMEOUT_MS=$VITE_REQUEST_TIMEOUT_MS
+RUN npm run build --workspace=frontend
 
-# Copy application files
-COPY . .
-
-# Build the application
-RUN npm run build
-
-# Expose port
-EXPOSE 3000
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD node -e "require('http').get('http://127.0.0.1:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)}).on('error', () => process.exit(1))"
-
-# Start the application
-CMD ["node", "backend/dist/server.cjs"]
+FROM caddy:2-alpine
+WORKDIR /app
+COPY Caddyfile ./Caddyfile
+COPY --from=build /app/frontend/dist ./dist
+EXPOSE 8080
+CMD ["caddy", "run", "--config", "/app/Caddyfile", "--adapter", "caddyfile"]
