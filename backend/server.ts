@@ -49,13 +49,18 @@ export function createApp() {
     console.warn('[CORS] FRONTEND_URL is not configured; browser cross-origin requests will be rejected.');
   }
   app.use(cors({
-    origin(origin, callback) {
-      // Requests without an Origin header include health checks and server-to-server calls.
-      if (!origin || allowedOrigins.includes(origin.replace(/\/$/, ''))) return callback(null, true);
-      const error = new Error('Origin is not allowed by CORS.') as Error & { status?: number };
-      error.status = 403;
-      return callback(error);
-    },
+   origin(origin, callback) {
+  console.log("Incoming Origin =", origin);
+  console.log("Allowed Origins =", allowedOrigins);
+
+  if (!origin || allowedOrigins.includes(origin.replace(/\/$/, ""))) {
+    return callback(null, true);
+  }
+
+  const error = new Error("Origin is not allowed by CORS.") as Error & { status?: number };
+  error.status = 403;
+  return callback(error);
+},
     credentials: true,
     methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: ['Authorization', 'Content-Type', 'X-LLM-Model', 'X-Request-Id'],
